@@ -14,7 +14,7 @@ public class TransactionIngestor {
             br.readLine();
             int linesCount = 0;
             String line;
-            while ((line = br.readLine()) != null && linesCount < 20) {
+            while ((line = br.readLine()) != null && linesCount < 50000) {
                 String[] fields = line.split(",");
 
                 try {
