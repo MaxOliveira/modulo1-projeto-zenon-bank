@@ -1,35 +1,35 @@
 package br.com.zenon;
 
-
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.Optional;
 
 public class Main {
     static void main() throws Exception{
-        TransactionIngestor transactionIngestor = new TransactionIngestor();
-        List<Transaction> transactionList = transactionIngestor.getTransactionList("PS_20174392719_1491204439457_log.csv");
+        TransactionListRepository transactionListRepository = new TransactionListRepository();
+        Optional<Transaction> transactionNotFound = transactionListRepository.getTransactionByClientName("C12345");
 
-        FraudAnalyzer fraudAnalyzer = new FraudAnalyzer();
-        List<Transaction> totalFraudes = fraudAnalyzer.getTotalFrauds(transactionList);
-        System.out.println("1. Total de Fraudes: " + totalFraudes.size());
+        if (transactionNotFound.isPresent()) {
+            System.out.println(transactionNotFound);
+        } else {
+            System.out.println("Transação não encontrada para o cliente C12345");
+        }
 
-        List<Transaction> fraudesMaiorValor = fraudAnalyzer.getFraudsMaiorValor(transactionList);
-        System.out.println("2. Top 3 Fraudes de Maior valor:");
-        fraudesMaiorValor.forEach(fraude -> System.out.println(fraude.amount()));
+        Optional<Transaction> transactionFound = transactionListRepository.getTransactionByClientName("C1231006815");
 
-        List<Transaction> fraudesNameOrig = fraudAnalyzer.getFraudsNameOrig(transactionList);
-        System.out.println("3. Clientes Suspeitos:");
-        fraudesNameOrig.forEach(fraude -> System.out.println(fraude.nameOrig()));
+        if (transactionFound.isPresent()) {
+            System.out.println(transactionFound.get());
+        } else {
+            System.out.println("Transação não encontrada para o cliente C1231006815");
+        }
 
-        BigDecimal totalAmount = fraudAnalyzer.getTotalAmount(transactionList);
-        System.out.println("4. Prejuizo Total: " + totalAmount);
-        fraudesNameOrig.forEach(fraude -> System.out.println(fraude.nameOrig()));
+        Long startTime = System.nanoTime();
+        transactionListRepository.getTransactionByClientName("C1868032458");
+        Long endTime = System.nanoTime();
+        System.out.println("Tempo de busca usando List e Stream: " + (endTime - startTime) / 1_000_000_000.0 + " segundos");
 
-        System.out.println("5. Fraudes por Tipo: ");
-        System.out.println("- CASH_IN: " + fraudAnalyzer.getFraudsByTypeCount(transactionList, TransactionType.CASH_IN.name()));
-        System.out.println("- CASH_OUT: " + fraudAnalyzer.getFraudsByTypeCount(transactionList, TransactionType.CASH_OUT.name()));
-        System.out.println("- TRANSFER: " + fraudAnalyzer.getFraudsByTypeCount(transactionList, TransactionType.TRANSFER.name()));
-        System.out.println("- DEBIT: " + fraudAnalyzer.getFraudsByTypeCount(transactionList, TransactionType.DEBIT.name()));
-        System.out.println("- PAYMENT: " + fraudAnalyzer.getFraudsByTypeCount(transactionList, TransactionType.PAYMENT.name()));
+        TransactionListMapRepository transactionListMapRepository = new TransactionListMapRepository();
+        Long startTime1 = System.nanoTime();
+        transactionListMapRepository.getTransactionByClientName("C1868032458");
+        Long endTime1 = System.nanoTime();
+        System.out.println("Tempo de busca usando Map: " + (endTime1 - startTime1) / 1_000_000_000.0 + " segundos");
     }
 }
